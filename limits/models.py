@@ -44,7 +44,10 @@ class Limit(models.Model):
         return queryset.annotate(
             used=Sum('contractprice__money', distinct=True),
             delta=Coalesce(
-                Sum('contractprice__contractpricechange__delta', distinct=True),
+                Sum(
+                    'contractprice__contractpricechange__delta',
+                    distinct=True,
+                ),
                 Value(0, output_field=models.DecimalField()),
             ),
         ).annotate(
