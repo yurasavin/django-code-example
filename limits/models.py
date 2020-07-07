@@ -30,7 +30,7 @@ class Limit(models.Model):
 
     def get_in_use(self, queryset):
         """
-        Возвращает сумму средства в работе
+        Return amount of money in work
         """
         return queryset\
             .filter(startprice__tender__status='in_work')\
@@ -39,7 +39,7 @@ class Limit(models.Model):
 
     def get_used(self, queryset):
         """
-        Возвращает сумму использованных средств
+        Return amount of used money
         """
         return queryset.annotate(
             used=Sum('contractprice__money', distinct=True),
@@ -53,7 +53,7 @@ class Limit(models.Model):
 
     def get_subdivisions_sources(self):
         """
-        Возвращает суммы по источникам, в разрезе подразделов
+        Return money, grouped by sources and subdivisions
         """
         qs = Subdivision.objects\
             .filter(source__limit_id=self.id)\
@@ -69,7 +69,7 @@ class Limit(models.Model):
         return total_and_used, in_use
 
     def get_sources_data(self):
-        """Возвращает суммы по источникам"""
+        """Return money, grouped by sources"""
         qs = LimitMoney.objects\
             .filter(industry_code__limit_article__source__limit_id=self.id)\
             .values('industry_code__limit_article__source__num')\
@@ -89,7 +89,7 @@ class Limit(models.Model):
         return total, in_use, used
 
     def get_articles_data(self):
-        """Возвращает суммы по статьям"""
+        """Return money, grouped by articles"""
         qs = LimitMoney.objects\
             .filter(industry_code__limit_article__source__limit_id=self.id)\
             .values(
@@ -125,7 +125,7 @@ class Limit(models.Model):
         return total, in_use, used
 
     def get_moneys_data(self):
-        """Возвращает суммы"""
+        """Return limit money"""
         qs = LimitMoney.objects.filter(
             industry_code__limit_article__source__limit_id=self.id,
         ).order_by(
@@ -153,7 +153,7 @@ class Limit(models.Model):
 
     def get_limit_data(self):  # noqa: WPS210
         """
-        Возвращает сводную информацию о лимитах
+        Return info about limit
         """
         limit_data = {}
 
@@ -229,10 +229,6 @@ class Limit(models.Model):
         return limit_data
 
     def set_money_to_zero(self):
-        """
-        Устанавливает значение money=0 во всех
-        связаных экземплярах LimitMoney
-        """
         LimitMoney.objects\
             .filter(industry_code__limit_article__source__limit_id=self.id)\
             .update(money=0)
@@ -251,13 +247,17 @@ class Source(models.Model):
         return f'{self.name} ({self.num})'
 
     def get_money(self):
-        """Возвращает сумму по источнику"""
+        """
+        Return total money
+        """
         return LimitMoney.objects\
             .filter(industry_code__limit_article__source_id=self.id)\
             .aggregate(m=Sum('money'))['m']
 
     def get_contracts(self):
-        """Возвращает заключенные контракты с суммой по источнику"""
+        """
+        Return contracts with amount
+        """
         return Contract.objects.filter(
             contractprice__limit__industry_code__limit_article__source=self,
         ).annotate(
@@ -282,7 +282,9 @@ class Source(models.Model):
         )
 
     def get_tenders_in_work(self):
-        """Возвращает идущие закупки с суммой по источнику"""
+        """
+        Return tenders in process with amount
+        """
         return Tender.objects.filter(
             status='in_work',
             startprice__limit__industry_code__limit_article__source=self,
@@ -295,10 +297,7 @@ class Source(models.Model):
                 output_field=models.DecimalField(),
             ),
         ).prefetch_related(
-            'ticket__tender_type',
-            'ticket__filial',
-            'ticket__worker',
-        )
+            'ticket__tender_type', 'ticket__filial', 'ticket__worker')
 
 
 class LimitArticle(models.Model):
@@ -314,7 +313,9 @@ class LimitArticle(models.Model):
         return f'{self.num} - {self.name}'
 
     def get_contracts(self):
-        """Возвращает заключенные контракты с суммой по источнику"""
+        """
+        Return contracts with amount
+        """
         return Contract.objects.filter(
             contractprice__limit__industry_code__limit_article=self,
         ).annotate(
@@ -333,13 +334,12 @@ class LimitArticle(models.Model):
                 output_field=models.DecimalField(),
             ),
         ).prefetch_related(
-            'ticket__tender_type',
-            'ticket__filial',
-            'ticket__worker',
-        )
+            'ticket__tender_type', 'ticket__filial', 'ticket__worker')
 
     def get_tenders_in_work(self):
-        """Возвращает идущие закупки с суммой по источнику"""
+        """
+        Return tenders in process with amount
+        """
         return Tender.objects.filter(
             status='in_work',
             startprice__limit__industry_code__limit_article=self,
@@ -352,10 +352,7 @@ class LimitArticle(models.Model):
                 output_field=models.DecimalField(),
             ),
         ).prefetch_related(
-            'ticket__tender_type',
-            'ticket__filial',
-            'ticket__worker',
-        )
+            'ticket__tender_type', 'ticket__filial', 'ticket__worker')
 
 
 class IndustryCode(models.Model):
@@ -390,7 +387,9 @@ class LimitMoney(models.Model):
         return f'{self.name}; {self. money}'
 
     def get_contracts(self):
-        """Возвращает заключенные контракты с суммой по источнику"""
+        """
+        Return contracts with amount
+        """
         return Contract.objects.filter(
             contractprice__limit=self,
         ).annotate(
@@ -404,18 +403,20 @@ class LimitMoney(models.Model):
             delta=Case(
                 When(
                     contractprice__limit=self,
-                    then=Sum('contractprice__contractpricechange__delta', distinct=True),
+                    then=Sum(
+                        'contractprice__contractpricechange__delta',
+                        distinct=True,
+                    ),
                 ),
                 output_field=models.DecimalField(),
             ),
         ).prefetch_related(
-            'ticket__tender_type',
-            'ticket__filial',
-            'ticket__worker',
-        )
+            'ticket__tender_type', 'ticket__filial', 'ticket__worker')
 
     def get_tenders_in_work(self):
-        """Возвращает идущие закупки с суммой по источнику"""
+        """
+        Return tenders with amount
+        """
         return Tender.objects.filter(
             status='in_work',
             startprice__limit=self,
@@ -428,10 +429,7 @@ class LimitMoney(models.Model):
                 output_field=models.DecimalField(),
             ),
         ).prefetch_related(
-            'ticket__tender_type',
-            'ticket__filial',
-            'ticket__worker',
-        )
+            'ticket__tender_type', 'ticket__filial', 'ticket__worker')
 
 
 class Subdivision(models.Model):
@@ -451,7 +449,9 @@ class Subdivision(models.Model):
         return self.num
 
     def get_contracts(self):
-        """Возвращает заключенные контракты с суммой по источнику"""
+        """
+        Return contracts with amount
+        """
         return Contract.objects.filter(
             contractprice__subdivision=self,
         ).annotate(
@@ -465,18 +465,20 @@ class Subdivision(models.Model):
             delta=Case(
                 When(
                     contractprice__subdivision=self,
-                    then=Sum('contractprice__contractpricechange__delta', distinct=True),
+                    then=Sum(
+                        'contractprice__contractpricechange__delta',
+                        distinct=True,
+                    ),
                 ),
                 output_field=models.DecimalField(),
             ),
         ).prefetch_related(
-            'ticket__tender_type',
-            'ticket__filial',
-            'ticket__worker',
-        )
+            'ticket__tender_type', 'ticket__filial', 'ticket__worker')
 
     def get_tenders_in_work(self):
-        """Возвращает идущие закупки с суммой по источнику"""
+        """
+        Return tenders with amount
+        """
         return Tender.objects.filter(
             status='in_work',
             startprice__subdivision=self,
@@ -489,10 +491,7 @@ class Subdivision(models.Model):
                 output_field=models.DecimalField(),
             ),
         ).prefetch_related(
-            'ticket__tender_type',
-            'ticket__filial',
-            'ticket__worker',
-        )
+            'ticket__tender_type', 'ticket__filial', 'ticket__worker')
 
 
 class Debt(models.Model):
