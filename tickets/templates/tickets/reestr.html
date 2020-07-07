@@ -1,0 +1,242 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load cache %}
+{% load prices_filters %}
+{% block custom_static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'tickets/css/reestr.css' %}">
+{% endblock %}
+{% block title %}Реестр{% endblock %}
+{% block current_id %}reestr{% endblock %}
+{% block actions %}
+  <br>
+  <div class="container-fluid">
+    <div class="row">
+      <ul class="pagination">
+        {% for year in years %}
+          <li class="page-item">
+            <a class="page-link header-color text-white" href="{% url 'tickets:reestr_by_year' year %}">Закупки на {{ year }} год</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <a class="btn btn-outline-dark font-weight-bold" href="{% url 'reports:reestr_to_excel' year %}">Выгрузить реестр в эксель</a>
+    </div>
+  </div>
+  <br>
+{% endblock %}
+{% block content %}
+{% cache None reestr year %}
+<div class="table-responsive">
+  <table id="filter-table" class="table-sm table-hover table-bordered text-center">
+    <thead>
+      <tr>
+        <td class="tr-hide px-0 py-0" width="300"></td>
+        <td class="hideTicket tr-hide px-0 py-0" width="90"></td>
+        <td class="hideTicket tr-hide px-0 py-0" width="50"></td>
+        <td class="hideTicket tr-hide px-0 py-0" width="85"></td>
+        <td class="hideTicket tr-hide px-0 py-0" width="100"></td>
+        <td class="hideTicket tr-hide px-0 py-0" width="115"></td>
+        <td class="hideTicket tr-hide px-0 py-0" width="75"></td>
+        <td class="hideTicket tr-hide px-0 py-0" width="75"></td>
+
+        <td class="tr-hide px-0 py-0" width="160"></td>
+        <td class="hideTender tr-hide px-0 py-0" width="100"></td>
+        <td class="hideTender tr-hide px-0 py-0" width="40"></td>
+        <td class="hideTender tr-hide px-0 py-0" width="80"></td>
+
+        <td class="tr-hide px-0 py-0" width="230"></td>
+        <td class="hideContract tr-hide px-0 py-0" width="70"></td>
+        <td class="hideContract tr-hide px-0 py-0" width="80"></td>
+        <td class="hideContract tr-hide px-0 py-0" width="175"></td>
+      </tr>
+      <tr>
+        <th colspan="8" class="ticket" id="hideTicket">Заявка
+          <img
+            class="btn"
+            onclick='openOnClick("hideTicket", "ticketButton")'
+            title='Свернуть колонки'
+            alt='Свернуть колонки'
+            src="{% static 'tickets/images/arrow_back_left_icon.png' %}"
+            id="ticketButton">
+        </th>
+        <th colspan="4" class="tender" id="hideTender">Закупка
+            <img
+            class="btn"
+            onclick='openOnClick("hideTender", "tenderButton")'
+            title='Свернуть колонки'
+            alt='Свернуть колонки'
+            src="{% static 'tickets/images/arrow_back_left_icon.png' %}"
+            id="tenderButton">
+        </th>
+        <th colspan="4" class="contract" id="hideContract">Контракт 
+            <img
+            class="btn"
+            onclick='openOnClick("hideContract", "contractButton")'
+            title='Свернуть колонки'
+            alt='Свернуть колонки'
+            src="{% static 'tickets/images/arrow_back_left_icon.png' %}"
+            id="contractButton">
+        </th>
+      </tr>
+      <tr class="stky">
+        <th scope="col" class="ticket r1">Предмет закупки</th>
+        <th scope="col" class="ticket hideTicket">Способ закупки</th>
+        <th scope="col" class="ticket hideTicket">Закон</th>
+        <th scope="col" class="ticket hideTicket">Подтип</th>
+        <th scope="col" class="ticket hideTicket">Инициатор (филиал)</th>
+        <th scope="col" class="ticket hideTicket">Ответственный</th>
+        <th scope="col" class="ticket hideTicket">Дата получения</th>
+        <th scope="col" class="ticket hideTicket">Статус</th>
+        <th scope="col" class="tender">Номер извещения</th>
+        <th scope="col" class="tender hideTender">Статус</th>
+        <th scope="col" class="tender hideTender">Для СМП</th>
+        <th scope="col" class="tender hideTender">НМЦК, руб.</th>
+        <th scope="col" class="contract">Номер</th>
+        <th scope="col" class="contract hideContract">Дата</th>
+        <th scope="col" class="contract hideContract">Сумма, руб.</th>
+        <th scope="col" class="contract hideContract">Контрагент
+      </tr>
+      <tr class='table-filters'>
+        <th><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTicket"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTicket"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTicket"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTicket"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTicket"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTicket"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTicket"><small><input type="text" placeholder="Поиск"></small></th>
+
+        <th><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTender"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTender"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideTender"><small><input type="text" placeholder="Поиск"></small></th>
+
+        <th><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideContract"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideContract"><small><input type="text" placeholder="Поиск"></small></th>
+        <th class="hideContract"><small><input type="text" placeholder="Поиск"></small></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ticket in ticket_list %}
+        <tr class='table-data'>
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-sm dropdown-toggle btn-outline-dark font-weight-bold" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  style="white-space: normal;">{{ ticket.name }}</button>
+              <div class="dropdown-menu header-color" aria-labelledby="dropdownMenu">
+                <h6 class="dropdown-header text-white">Действия</h6>
+                <a class="dropdown-item text-white" href="{% url 'tickets:ticket_update' ticket.id %}">Изменить заявку</a>
+                <a class="dropdown-item text-white" href="{% url 'make_docs:protocol_cs' ticket.id %}">Создать протокол заседания КС</a>
+                {% if not ticket.tender and ticket.tender_type.need_publicate %}
+                  <a class="dropdown-item text-white" href="{% url 'tenders:tender_create' ticket.id %}">Создать закупку</a>
+                {% elif not ticket.contract and not ticket.tender_type.need_publicate %}
+                  <a class="dropdown-item text-white" href="{% url 'contracts:contract_create' ticket.id %}">Создать контракт</a>
+                {% endif %}
+                {% if perms.tickets.delete_ticket and ticket.status %}
+                  <a class="dropdown-item text-white" style="color: crimson" href="{% url 'tickets:ticket_delete' ticket.pk %}">Удалить заявку</a>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+          <td class="hideTicket">{{ ticket.tender_type.name }}</td>
+          <td class="hideTicket">{{ ticket.tender_type.get_law_display }}</td>
+          <td class="hideTicket">{{ ticket.get_under_type_display }}</td>
+          <td class="hideTicket">{{ ticket.get_initiator_display }} ({{ ticket.filial }})</td>
+          <td class="hideTicket">{{ ticket.worker.last_name }}</td>
+          <td class="hideTicket">{{ ticket.date }}</td>
+          <td class="hideTicket">{{ ticket.get_status_display }}</td>
+          {% if ticket.tender %}
+            <td>
+              <a class="btn btn-sm btn-outline-dark font-weight-bold" href="{{ ticket.tender.get_absolute_url }}">{{ ticket.tender.num }}</a>
+            </td>
+            <td class="hideTender">{{ ticket.tender.get_status_display }}</td>
+            <td class="hideTender">{{ ticket.tender.print_smp }}</td>
+            <td class="hideTender">{{ ticket.tender.price|print_money }}</td>
+          {% else %}
+            <td></td>
+            <td class="hideTender"></td>
+            <td class="hideTender"></td>
+            <td class="hideTender"></td>
+          {% endif %}
+          {% if ticket.contract %}
+            <td>
+              <a class="btn btn-sm btn-outline-dark font-weight-bold" href="{{ ticket.contract.get_absolute_url }}">{{ ticket.contract.num }}</a>
+            </td>
+            <td class="hideContract">{{ ticket.contract.date }}</td>
+            <td class="hideContract">{{ ticket.contract.price|print_money }}</td>
+            <td class="hideContract">{{ ticket.contract.kontragent }}</td>
+          {% else %}
+            <td></td>
+            <td class="hideContract"></td>
+            <td class="hideContract"></td>
+            <td class="hideContract"></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endcache %}
+{% endblock %}
+{% block exta_loadings %}
+<script>
+$('.table-filters input').on('input', function () {
+    filterTable($(this).parents('table'));
+});
+
+function filterTable($table) {
+    var $filters = $table.find('.table-filters th');
+    var $rows = $table.find('.table-data');
+    $rows.each(function (rowIndex) {
+        var valid = true;
+        $(this).find('td').each(function (colIndex) {
+            if ($filters.eq(colIndex).find('input').val()) {
+                if ($(this).text().toLowerCase().indexOf(
+                $filters.eq(colIndex).find('input').val().toLowerCase()) == -1) {
+                    valid = valid && false;
+                }
+            }
+        });
+        if (valid === true) {
+            $(this).css('display', '');
+        } else {
+            $(this).css('display', 'none');
+        }
+    });
+}
+
+// функция сворачивающая и разворачивающая таблицу
+function openOnClick(hideClass, buttonId) {
+    var button = document.getElementById(buttonId);
+    // сворачиваем шапку
+    var elementToColspan = document.getElementById(hideClass);
+    if (elementToColspan.getAttribute('colspan') == '1') {
+        if (hideClass == 'hideTicket') {
+            elementToColspan.setAttribute('colspan', '8');
+        } else if (hideClass == 'hideContract') {
+            elementToColspan.setAttribute('colspan', '4');
+        } else {
+            elementToColspan.setAttribute('colspan', '4');
+        };
+        button.setAttribute("src", "{% static 'tickets/images/arrow_back_left_icon.png' %}");
+    } else {
+        elementToColspan.setAttribute('colspan', '1');
+        button.setAttribute("src", "{% static 'tickets/images/arrow_next_right_icon.png' %}");
+    }
+
+    // сворачиваем колонки
+    var elementsToHide = document.getElementsByClassName(hideClass);
+    for (i = 0; i<elementsToHide.length; ++i) {
+        var elem = elementsToHide[i];
+        if (elem.hasAttribute('style')) {
+          elem.removeAttribute('style');
+        } else {
+          elem.setAttribute('style', 'display: none;');
+        }        
+    }
+}
+</script>
+{% endblock %}

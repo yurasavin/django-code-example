@@ -1,0 +1,21 @@
+-r base.txt
+django-debug-toolbar==2.2
+ptvsd==4.3.2
+django-silk==4.0.1
+
+# Linting
+flake8
+flake8-blind-except
+flake8-builtins
+flake8-comprehensions
+flake8-import-order
+flake8-commas
+flake8-debugger
+flake8-mutable
+flake8-eradicate
+flake8-print
+flake8-django
+pep8-naming
+flake8-type-annotations
+flake8-bandit
+dlint

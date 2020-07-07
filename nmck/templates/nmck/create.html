@@ -1,0 +1,83 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Формирование НМЦК{% endblock %}
+{% block current_id %}nmck{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <h2>Формирование НМЦК</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <form method="post" action="" id="positions_form">
+                {% csrf_token %}
+                {{ form.management_form }}
+            </form>
+            {% if form.total_error_count %}
+                {% for error in form.errors %}
+                    {% if error %}
+                        {% for key, value in error.as_data.items %}
+                            {% if key == '__all__' %}
+                                <div class="alert alert-danger" role="alert">{{ value.0.message }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            <table class="table-sm table-bordered text-center">
+                <thead>
+                    <tr class="current">
+                        <th class="align-middle">№ п/п</th>
+                        <th class="align-middle">Наменование</th>
+                        <th class="align-middle">Единица измерения</th>
+                        <th class="align-middle">Количество</th>
+                        <th class="align-middle">Цена №1</th>
+                        <th class="align-middle">Цена №2</th>
+                        <th class="align-middle">Цена №3</th>
+                        <th class="align-middle">Средняя цена</th>
+                        <th class="align-middle">Коэф. вариации</th>
+                        <th class="align-middle">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for frm in form %}
+                        <tr class="positions">
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ frm.name }}</td>
+                            <td>{{ frm.type_of_size }}</td>
+                            <td class="num_there">{{ frm.num|add_class:"num" }}</td>
+                            <td class="price_there">{{ frm.price1|add_class:"prices price1" }}</td>
+                            <td class="price_there">{{ frm.price2|add_class:"prices price2" }}</td>
+                            <td class="price_there">{{ frm.price3|add_class:"prices price3" }}</td>
+                            <td class="avgs"></td>
+                            <td class="variations"></td>
+                            <td class="summs"></td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <th colspan="9" class="text-left">Итого</th>
+                        <th id="summ_all"></th>
+                    </tr>
+                    <tr>
+                        <td colspan="10" class="text-left">
+                            <input class="btn font-weight-bold btn-outline-dark" type="submit" form="positions_form" value="Сформировать НМЦК">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="10" class="text-left">
+                            <input class="btn font-weight-bold btn-outline-dark" value="Добавить еще строк" id="add_rows">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block exta_loadings %}
+    <script src="{% static 'nmck/js/calculate.js' %}"></script>
+    <script src="{% static 'nmck/js/add_rows.js' %}"></script>
+{% endblock %}

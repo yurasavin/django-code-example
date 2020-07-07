@@ -1,0 +1,28 @@
+body {
+    padding: 30px;
+    background-color: #ebebeb;
+}
+
+.header-color {
+    background-color: #3E4D66;
+}
+
+.current {
+    background-color: #8F9DB5;
+}
+
+.page-link:hover, .page-link:active,
+.nav-link:hover, .nav-link:active,
+.dropdown-item:hover, .dropdown-item:active
+ {
+    background-color: #8F9DB5 !important;
+   }
+
+ul.no-markers {
+    list-style-type: none; /* Убираем маркеры */
+}
+
+ul.no-markers li {
+    margin-left: 0; /* Отступ слева в браузере IE и Opera */
+    padding-left: 0; /* Отступ слева в браузере Firefox, Safari, Chrome */
+}

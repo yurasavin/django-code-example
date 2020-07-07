@@ -1,0 +1,11 @@
+{% extends "main/base.html" %}
+{% load widget_tweaks %}
+{% block custom_static %} {{ form.media.css }} {% endblock %}
+{% block title %}Создание/Изменение контракта{% endblock %}
+{% block content %}
+<div class="container">
+  <h3>Контракт</h3>
+  {% include 'main/form.html' %}
+</div>
+{% endblock %}
+{% block exta_loadings %} {{ form.media.js }}{% endblock %}

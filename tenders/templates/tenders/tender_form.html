@@ -1,0 +1,23 @@
+{% extends "main/base.html" %}
+{% load widget_tweaks %}
+{% block title %}Создание/Изменение закупки{% endblock %}
+{% block content %}
+  <div class="container">
+    <form action="" method="post" onsubmit="on_press();">
+      {% csrf_token %}
+      <h3>Закупка</h3>
+      {% for field in form %}
+        <div class="form-group row">
+          {% if field.errors %}
+          <div class="alert alert-danger">{{ field.errors}}</div>
+          {% endif %}
+          <label for="{{ field.id_for_label }}" class="col-md-2 col-form-label">{{ field.label_tag }}</label>
+          <div class="col-md-5">
+            {{ field|add_class:"form-control" }}
+          </div>
+        </div>
+      {% endfor %}
+      <input class="btn font-weight-bold btn-outline-dark" type="submit" value="Применить"></tr></td>
+    </form>
+  </div>
+{% endblock %}

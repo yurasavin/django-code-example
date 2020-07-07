@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+{% load widget_tweaks %}
+{% block title %}Создание/Изменение заявки{% endblock %}
+{% block current_id %}actions{% endblock %}
+{% block content %}
+  <div class="container">
+    <form action="" method="post">
+      {% csrf_token %}
+      <h3>Заявка</h3>
+      {% for field in form %}
+        <div class="form-group row">
+          {% if field.errors %}
+            <div class="alert alert-danger">{{ field.errors}}</div>
+          {% endif %}
+          <label for="{{ field.id_for_label }}" class="col-2 col-form-label">{{ field.label_tag }}</label>
+          <div class="col-5">
+            {{ field|add_class:"form-control" }}
+          </div>
+        </div>
+      {% endfor %}
+      <input class="btn font-weight-bold btn-outline-dark" type="submit" value="Применить"></tr></td>
+    </form>
+  </div>
+{% endblock %}

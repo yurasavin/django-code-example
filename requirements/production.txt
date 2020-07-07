@@ -1,0 +1,5 @@
+-r base.txt
+gunicorn==20.0.4
+gunicorn[gevent]
+gevent==1.4.0
+sentry-sdk==0.14.0
