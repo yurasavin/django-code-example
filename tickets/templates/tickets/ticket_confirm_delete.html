@@ -1,9 +1,0 @@
-{% extends "main/base.html" %}
-{% block title %}Удаление заявки{% endblock %}
-{% block content %}
-  <form action="" method="post">
-  {% csrf_token %}
-    <div class="alert alert-active" role="alert">Если Вы действительно хотите удалить заявку "{{ ticket }}", нажмите "Удалить"</div>
-    <input value="Удалить" type="submit" class="btn btn-danger" role="button">
-  </form>
-{% endblock %}

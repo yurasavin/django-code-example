@@ -1,14 +1,35 @@
 from rest_framework import serializers
 
-from limits.models import Limit
+from limits.models import Limit, Source, LimitArticle, LimitDateInfo
 
 
-class LimitInfoSerializer(serializers.ModelSerializer):
-    data = serializers.SerializerMethodField()
+class LimitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Limit
-        fields = ('year', 'data')
+        fields = '__all__'
 
-    def get_data(self, limit):
-        return limit.get_limit_data()
+
+class SourceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Source
+        fields = '__all__'
+
+
+class LimitArticleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = LimitArticle
+        fields = '__all__'
+
+
+class DateParamSerializer(serializers.Serializer):
+    date = serializers.DateField(required=True)
+
+
+class LimitDateInfoSerializer(serializers.Serializer):
+
+    class Meta:
+        models = LimitDateInfo
+        fields = '__all__'
