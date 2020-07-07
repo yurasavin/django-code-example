@@ -259,19 +259,22 @@ class Source(models.Model):
         Return contracts with amount
         """
         return Contract.objects.filter(
-            contractprice__limit__industry_code__limit_article__source=self,
+            contractprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
         ).annotate(
             money=Case(
                 When(
-                    contractprice__limit__industry_code__limit_article__source=self,  # noqa: E501
+                    contractprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
                     then=Sum('contractprice__money', distinct=True),
                 ),
                 output_field=models.DecimalField(),
             ),
             delta=Case(
                 When(
-                    contractprice__limit__industry_code__limit_article__source=self,  # noqa: E501
-                    then=Sum('contractprice__contractpricechange__delta', distinct=True),
+                    contractprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
+                    then=Sum(
+                        'contractprice__contractpricechange__delta',
+                        distinct=True,
+                    ),
                 ),
                 output_field=models.DecimalField(),
             ),
@@ -287,11 +290,11 @@ class Source(models.Model):
         """
         return Tender.objects.filter(
             status='in_work',
-            startprice__limit__industry_code__limit_article__source=self,
+            startprice__limit__industry_code__limit_article__source_id=self.id,
         ).annotate(
             money=Case(
                 When(
-                    startprice__limit__industry_code__limit_article__source=self,  # noqa: E501
+                    startprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
                     then=Sum('startprice__money'),
                 ),
                 output_field=models.DecimalField(),
@@ -317,19 +320,22 @@ class LimitArticle(models.Model):
         Return contracts with amount
         """
         return Contract.objects.filter(
-            contractprice__limit__industry_code__limit_article=self,
+            contractprice__limit__industry_code__limit_article_id=self.id,
         ).annotate(
             money=Case(
                 When(
-                    contractprice__limit__industry_code__limit_article=self,
+                    contractprice__limit__industry_code__limit_article_id=self.id,  # noqa: E501
                     then=Sum('contractprice__money', distinct=True),
                 ),
                 output_field=models.DecimalField(),
             ),
             delta=Case(
                 When(
-                    contractprice__limit__industry_code__limit_article=self,
-                    then=Sum('contractprice__contractpricechange__delta', distinct=True),
+                    contractprice__limit__industry_code__limit_article_id=self.id,  # noqa: E501
+                    then=Sum(
+                        'contractprice__contractpricechange__delta',
+                        distinct=True,
+                    ),
                 ),
                 output_field=models.DecimalField(),
             ),
@@ -342,11 +348,11 @@ class LimitArticle(models.Model):
         """
         return Tender.objects.filter(
             status='in_work',
-            startprice__limit__industry_code__limit_article=self,
+            startprice__limit__industry_code__limit_article_id=self.id,
         ).annotate(
             money=Case(
                 When(
-                    startprice__limit__industry_code__limit_article=self,
+                    startprice__limit__industry_code__limit_article_id=self.id,
                     then=Sum('startprice__money'),
                 ),
                 output_field=models.DecimalField(),
@@ -391,18 +397,18 @@ class LimitMoney(models.Model):
         Return contracts with amount
         """
         return Contract.objects.filter(
-            contractprice__limit=self,
+            contractprice__limit_id=self.id,
         ).annotate(
             money=Case(
                 When(
-                    contractprice__limit=self,
+                    contractprice__limit_id=self.id,
                     then=Sum('contractprice__money', distinct=True),
                 ),
                 output_field=models.DecimalField(),
             ),
             delta=Case(
                 When(
-                    contractprice__limit=self,
+                    contractprice__limit_id=self.id,
                     then=Sum(
                         'contractprice__contractpricechange__delta',
                         distinct=True,
@@ -419,11 +425,11 @@ class LimitMoney(models.Model):
         """
         return Tender.objects.filter(
             status='in_work',
-            startprice__limit=self,
+            startprice__limit_id=self.id,
         ).annotate(
             money=Case(
                 When(
-                    startprice__limit=self,
+                    startprice__limit_id=self.id,
                     then=Sum('startprice__money'),
                 ),
                 output_field=models.DecimalField(),
@@ -453,18 +459,18 @@ class Subdivision(models.Model):
         Return contracts with amount
         """
         return Contract.objects.filter(
-            contractprice__subdivision=self,
+            contractprice__subdivision_id=self.id,
         ).annotate(
             money=Case(
                 When(
-                    contractprice__subdivision=self,
+                    contractprice__subdivision_id=self.id,
                     then=Sum('contractprice__money', distinct=True),
                 ),
                 output_field=models.DecimalField(),
             ),
             delta=Case(
                 When(
-                    contractprice__subdivision=self,
+                    contractprice__subdivision_id=self.id,
                     then=Sum(
                         'contractprice__contractpricechange__delta',
                         distinct=True,
@@ -481,11 +487,11 @@ class Subdivision(models.Model):
         """
         return Tender.objects.filter(
             status='in_work',
-            startprice__subdivision=self,
+            startprice__subdivision_id=self.id,
         ).annotate(
             money=Case(
                 When(
-                    startprice__subdivision=self,
+                    startprice__subdivision_id=self.id,
                     then=Sum('startprice__money'),
                 ),
                 output_field=models.DecimalField(),
