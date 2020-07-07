@@ -4,8 +4,11 @@ from limits.models import Limit
 
 
 class LimitInfoSerializer(serializers.ModelSerializer):
-    data = serializers.JSONField()
+    data = serializers.SerializerMethodField()
 
     class Meta:
         model = Limit
-        fields = ('model', 'registration_number', )
+        fields = ('year', 'data')
+
+    def get_data(self, limit):
+        return limit.get_limit_data()

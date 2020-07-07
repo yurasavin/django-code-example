@@ -232,6 +232,9 @@ class Limit(models.Model):
         return limit_data
 
     def set_money_to_zero(self):
+        """
+        Set all related LimitMoney money to 0
+        """
         LimitMoney.objects\
             .filter(industry_code__limit_article__source__limit_id=self.id)\
             .update(money=0)
