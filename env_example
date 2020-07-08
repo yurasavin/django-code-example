@@ -1,0 +1,12 @@
+# Django
+SECRET_KEY=123
+DJANGO_DEBUG=True
+ALLOWED_HOSTS=*
+STATIC_URL=static/
+MEDIA_URL=media/
+
+# Postgres
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/django_code_example
+
+# Redis
+CELERY_BROKER_URL=redis://localhost:6379/0

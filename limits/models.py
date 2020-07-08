@@ -2,6 +2,9 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import F, Sum
 
+from contracts.models import Contract
+
+from tenders.models import Tender
 
 DEF_DECIMAL_DIGITS = 11
 DEF_DECIMAL_PLACES = 2
@@ -65,6 +68,18 @@ class Source(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.num})'
+
+    @property
+    def tenders(self):
+        """Return queryset of related Tenders"""
+        return Tender.objects.filter(
+            startprice__limit__industry_code__limit_article__source_id=self.id)
+
+    @property
+    def contracts(self):
+        """Return queryset of related Contracts"""
+        return Contract.objects.filter(
+            contractprice__limit__industry_code__limit_article__source_id=self.id)  # noqa: E501
 
     def get_money(self):
         """

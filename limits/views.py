@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Case, Sum, When
+from django.db.models import Case, Sum, Q, When
 from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import action
@@ -60,28 +60,27 @@ class SourceViewSet(SerializerMapMixin, ModelViewSet):
 
     @action(detail=True)
     def contracts(self, request, pk=None):
-        limit = self.get_object()
-        contracts = self._get_contracts(limit)
+        source = self.get_object()
+        contracts = self._get_contracts(source)
         serializer = self.get_serializer(contracts, many=True)
         return Response(serializer.data)
 
-    def _get_contracts(self):
+    def _get_contracts(self, source):
         """
         Return contracts with amount
         """
-        return Contract.objects.filter(
-            contractprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
-        ).annotate(
+        source_id_equal = Q(contractprice__limit__industry_code__limit_article__source_id=source.id)  # noqa: E501
+        return source.contracts.annotate(
             money=Case(
                 When(
-                    contractprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
+                    source_id_equal,
                     then=Sum('contractprice__money', distinct=True),
                 ),
                 output_field=models.DecimalField(),
             ),
             delta=Case(
                 When(
-                    contractprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
+                    source_id_equal,
                     then=Sum(
                         'contractprice__contractpricechange__delta',
                         distinct=True,
@@ -98,19 +97,16 @@ class SourceViewSet(SerializerMapMixin, ModelViewSet):
         serializer = self.get_serializer(tenders, many=True)
         return Response(serializer.data)
 
-    def _tenders_in_work(self):
+    def _tenders_in_work(self, source):
         """
         Return tenders in process with amount
         """
-        return Tender.objects.filter(
-            status='in_work',
-            startprice__limit__industry_code__limit_article__source_id=self.id,
-        ).annotate(
-            money=Case(
-                When(
-                    startprice__limit__industry_code__limit_article__source_id=self.id,  # noqa: E501
-                    then=Sum('startprice__money'),
+        source_id_equal = Q(startprice__limit__industry_code__limit_article__source_id=source.id)  # noqa: E501
+        return source.tenders\
+            .filter(status='in_work')\
+            .annotate(
+                money=Case(
+                    When(source_id_equal, then=Sum('startprice__money')),
+                    output_field=models.DecimalField(),
                 ),
-                output_field=models.DecimalField(),
-            ),
-        )
+            )
