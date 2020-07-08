@@ -4,11 +4,11 @@ from celery.utils.log import get_task_logger
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Case, Count, F, Sum, Value, When
+from django.db.models import Count, F, Sum, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from limits.models import Limit, LimitMoney, LimitDateInfo
+from limits.models import Limit, LimitDateInfo
 
 logger = get_task_logger(__name__)
 
@@ -65,7 +65,7 @@ def update_limit_info(limit_id):
         limit_data[source_num]['articles'][num]\
             ['used'] = article_used['used_with_delta']
 
-    moneys_total, moneys_in_use, moneys_used = _get_limit_moneys(limit)  # noqa:E501
+    moneys_total, moneys_in_use, moneys_used = _get_limit_moneys(limit)
     for money_total in moneys_total:
         source_num = money_total['source_num']
         article_num = money_total['article_num']
@@ -94,8 +94,7 @@ def update_limit_info(limit_id):
 
 def _get_limit_sources(limit):
     """Return money, grouped by sources"""
-    qs = LimitMoney.objects\
-        .filter(industry_code__limit_article__source__limit_id=limit.id)\
+    qs = limit.limit_moneys\
         .values('industry_code__limit_article__source__num')\
         .order_by('industry_code__limit_article__source__num')
 
@@ -115,16 +114,13 @@ def _get_limit_sources(limit):
 
 def _get_limit_articles(limit):
     """Return money, grouped by articles"""
-    qs = LimitMoney.objects\
-        .filter(industry_code__limit_article__source__limit_id=limit.id)\
+    qs = limit.limit_moneys\
         .values(
             'industry_code__limit_article__source__num',
-            'industry_code__limit_article__num',
-        )\
+            'industry_code__limit_article__num')\
         .order_by(
             'industry_code__limit_article__source__num',
-            'industry_code__limit_article__num',
-        )
+            'industry_code__limit_article__num')
 
     total = qs.annotate(
         total=Sum('money'),
@@ -152,13 +148,9 @@ def _get_limit_articles(limit):
 
 def _get_limit_moneys(limit):
     """Return limit money"""
-    qs = LimitMoney.objects.filter(
-        industry_code__limit_article__source__limit_id=limit.id,
-    ).order_by(
-        'industry_code__limit_article__source__num',
-        'industry_code__limit_article__num',
-        'industry_code__num',
-    )
+    qs = limit.limit_moneys.order_by(
+        'industry_code__num', 'industry_code__limit_article__num',
+        'industry_code__limit_article__source__num')
 
     total = qs.annotate(
         source_num=limit.source_num_field,

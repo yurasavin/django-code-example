@@ -1,13 +1,7 @@
-from decimal import Decimal
-
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.db.models import Case, Count, F, Sum, Value, When
-from django.db.models.functions import Coalesce
+from django.db.models import F, Sum
 
-from contracts.models import Contract
-
-from tenders.models import Tender
 
 DEF_DECIMAL_DIGITS = 11
 DEF_DECIMAL_PLACES = 2
@@ -21,7 +15,7 @@ class Limit(models.Model):
     class Meta:
         ordering = ['-year']
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return str(self.year)
 
     @property
@@ -29,13 +23,17 @@ class Limit(models.Model):
         """Return deep related source field"""
         return F('industry_code__limit_article__source__num')
 
+    @property
+    def limit_moneys(self):
+        """Return queryset of related LimitMoney"""
+        return LimitMoney.objects.filter(
+            industry_code__limit_article__source__limit_id=self.id)
+
     def set_money_to_zero(self):
         """
         Set all related LimitMoney money to 0
         """
-        LimitMoney.objects\
-            .filter(industry_code__limit_article__source__limit_id=self.id)\
-            .update(money=0)
+        self.limit_moneys.update(money=0)
 
 
 class LimitDateInfo(models.Model):
@@ -52,7 +50,7 @@ class LimitDateInfo(models.Model):
             ),
         ]
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return f'{self.id}: {self.date}'
 
 
@@ -65,7 +63,7 @@ class Source(models.Model):
     class Meta:
         ordering = ['num']
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return f'{self.name} ({self.num})'
 
     def get_money(self):
@@ -86,7 +84,7 @@ class LimitArticle(models.Model):
     class Meta:
         ordering = ['num']
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return f'{self.num} - {self.name}'
 
 
@@ -101,7 +99,7 @@ class IndustryCode(models.Model):
     class Meta:
         ordering = ['num']
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return f'{self.num}: {self.name}'
 
 
@@ -118,7 +116,7 @@ class LimitMoney(models.Model):
     class Meta:
         ordering = ['sybsidy_code']
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return f'{self.name}; {self. money}'
 
 
@@ -129,5 +127,5 @@ class Debt(models.Model):
     money = models.DecimalField(max_digits=DEF_DECIMAL_DIGITS,
                                 decimal_places=DEF_DECIMAL_PLACES, default=0)
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return f'{self.id}: {self.money}'

@@ -1,30 +1,22 @@
-from decimal import Decimal
-
 from django.db import models
-from django.db.models import Case, Count, F, Sum, Value, When
-from django.db.models.functions import Coalesce
+from django.db.models import Case, Sum, When
 from django.shortcuts import get_object_or_404
-
-from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from contracts.models import Contract
-
-from tenders.models import Tender
-from tenders.serializers import TenderSerializer
-
-from contracts.models import Contract
 from contracts.serializers import ContractSerializer
 
 from core.viewset_mixins import SerializerMapMixin
 
-from limits.serializers import (LimitSerializer, LimitArticleSerializer,
-                                SourceSerializer, DateParamSerializer,
-                                LimitDateInfoSerializer)
-from limits.models import Limit, LimitDateInfo, LimitMoney, Source, LimitArticle
+from limits.models import Limit, LimitDateInfo, Source
+from limits.serializers import (DateParamSerializer, LimitDateInfoSerializer,
+                                LimitSerializer, SourceSerializer)
+
+from tenders.models import Tender
+from tenders.serializers import TenderSerializer
 
 
 class LimitViewSet(ModelViewSet):

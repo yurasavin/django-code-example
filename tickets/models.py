@@ -1,7 +1,4 @@
 from django.db import models
-from django.urls import reverse
-
-from contracts.models import ContractNum
 
 
 class Ticket(models.Model):
