@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Sum
 
 
 class AbstractPrice(models.Model):
@@ -25,13 +24,6 @@ class ContractPrice(AbstractPrice):
                                        on_delete=models.CASCADE)
     contract = models.ForeignKey('contracts.Contract',
                                  on_delete=models.CASCADE)
-
-    def get_money_with_change(self):
-        delta = (self.contractpricechange_set.all().aggregate(
-            m=Sum('delta')
-        )['m'] or 0)
-        money_with_change = self.money + delta
-        return money_with_change
 
 
 class ContractPriceChange(models.Model):

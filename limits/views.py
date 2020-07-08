@@ -25,17 +25,18 @@ class LimitViewSet(ModelViewSet):
 
     @action(detail=True)
     def latest_date_info(self, request, pk=None):
-        queryset = LimitDateInfo.objects.order_by('-date')[:1]
-        return self._date_response(queryset, pk)
+        limit_info = LimitDateInfo.objects\
+            .filter(limit_id=pk).order_by('date').last()
+        return self._date_response(limit_info)
 
     @action(detail=True)
     def date_info(self, request, pk=None):
         date = self._get_date_param()
-        queryset = LimitDateInfo.objects.filter(date=date)
-        return self._date_response(queryset, pk)
+        queryset = LimitDateInfo.objects.all()
+        limit_info = get_object_or_404(queryset, date=date, limit_id=pk)
+        return self._date_response(limit_info)
 
-    def _date_response(self, queryset, pk):
-        limit_info = get_object_or_404(queryset, limit_id=pk)
+    def _date_response(self, limit_info):
         serializer = LimitDateInfoSerializer(limit_info)
         return Response(serializer.data)
 

@@ -9,7 +9,7 @@ class Ticket(models.Model):
     status = models.BooleanField(
         "Статус",
         max_length=10,
-        default=True
+        default=True,
     )
     year = models.ManyToManyField(
         'limits.Limit',

@@ -19,28 +19,12 @@ from django.urls import include, path
 from functools import partial
 from django.views import defaults
 
-from worker.views import CustomLoginView
-
-handler403 = partial(defaults.permission_denied, template_name='main/403.html')
-handler404 = partial(defaults.page_not_found, template_name='main/404.html')
-handler500 = partial(defaults.server_error, template_name='main/500.html')
 
 urlpatterns = [
-    path('staff_only/', admin.site.urls),
-    path('login/', CustomLoginView.as_view(), name='login'),
-    path('ktru/', include('ktru.urls')),
-    path('limits/', include('limits.urls')),
-    path('', include('tickets.urls')),
-    path('tenders/', include('tenders.urls')),
-    path('contracts/', include('contracts.urls')),
-    path('prices/', include('prices.urls')),
-    path('reports/', include('reports.urls')),
-    path('docx-maker/', include('make_docs.urls')),
-    path('worker/', include('worker.urls')),
-    path('nmck/', include('nmck.urls')),
-    path('drugs/', include('drugs.urls')),
-    path('metrics/', include('metrics.urls')),
-    path('audit/', include('audit.urls')),
+    path('admin/', admin.site.urls),
+    path('api/v1/', include([
+        path('limits/', include('limits.urls')),
+    ]))
 ]
 
 if settings.DEBUG:

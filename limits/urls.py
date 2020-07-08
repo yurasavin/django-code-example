@@ -1,14 +1,13 @@
-"""Урлы для лимитов"""
 from django.urls import include, path
 
-from . import views
+from rest_framework.routers import DefaultRouter
 
-app_name = 'limits'
+from limits import views
+
+router = DefaultRouter()
+router.register(r'limits', views.LimitViewSet)
+router.register(r'sources', views.SourceViewSet)
 
 urlpatterns = [
-    path('limit/', include([
-        path('', views.LimitInfo.as_view(), name='limit'),
-        path('<int:year>/', views.LimitInfo.as_view(), name='limit_info'),
-        path('update/', views.UpdateLimitsFromFile.as_view(), name='update_limits'),  # noqa: E501
-    ]))
+    path('', include(router.urls)),
 ]
