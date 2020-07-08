@@ -30,15 +30,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG')
 
-# для debug_toolbar
-if DEBUG:
-    # tricks to have debug toolbar when developing with docker
-    import socket
-    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -49,24 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
-    'widget_tweaks',
-    'core',
-    'worker',
-    'limits',
-    'tickets',
-    'tenders',
+
     'contracts',
+    'core',
+    'limits',
     'prices',
-    'make_docs',
-    'reports',
-    'ktru',
-    'nmck',
-    'drugs',
-    'formtools',
+    'tenders',
+    'tickets',
+
     'django_extensions',
-    'audit',
-    'metrics',
-    # 'ftp_contracts',
     'rest_framework',
 ]
 if DEBUG:
@@ -81,24 +64,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'metrics.middleware.MetricMiddleware',
 ]
 
 if DEBUG:
     MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
     MIDDLEWARE.insert(0,'silk.middleware.SilkyMiddleware')
-
-
-CACHES = {
-    'default': env.cache(
-        var='MEMCACHED_URL',
-        backend='django.core.cache.backends.memcached.PyLibMCCache'
-    ),
-}
-if DEBUG:
-    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
-
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 ROOT_URLCONF = 'reestr_proj.urls'
 
@@ -146,11 +116,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-if not DEBUG:
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    CONN_MAX_AGE = 3600
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -160,16 +125,7 @@ TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
-# Настройки дат
-USE_L10N = False
-DATE_FORMAT = 'd.m.Y'
-SHORT_DATE_FORMAT = 'd.m.Y'
-DATE_INPUT_FORMATS = [
-    '%d.%m.%Y',                         # '25.10.2006'
-    '%Y-%m-%d', '%m/%d/%Y',             # '2006-10-25', '10/25/2006'
-    '%d %b %Y', '%d %b, %Y',            # '25 Oct 2006', '25 Oct, 2006'
-    '%d %B %Y', '%d %B, %Y',            # '25 October 2006', '25 October, 2006'
-]
+USE_L10N = True
 
 USE_TZ = True
 
@@ -183,29 +139,6 @@ MEDIA_URL = env('MEDIA_URL')
 
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-
-# Redirect to home URL after login (Default redirects to /accounts/profile/)
-LOGIN_REDIRECT_URL = ''
-LOGIN_URL = '/login/'
-
-
-# Отправка писем
-EMAIL_CONFIG = env.email_url('EMAIL_URL')
-vars().update(EMAIL_CONFIG)
-
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-SERVER_EMAIL = env('DEFAULT_FROM_EMAIL')
-ADMINS = [x.split(':') for x in env.list('DJANGO_ADMINS')]
-
-# Токен бота для отправки бекапа и id юзера которому отправлять сообщения
-TELEBOT_KEY = env('TELEBOT_KEY')
-TELEGRAM_USER_ID = env('TELEGRAM_USER_ID')
-
-# Путь для сохранения бекапов
-PATH_TO_BACKUP = env('PATH_TO_BACKUP')
-
-# Разделитель дробной части
-DECIMAL_SEPARATOR = ','
 
 # Sentry
 if not DEBUG:
@@ -244,28 +177,16 @@ REST_FRAMEWORK = {
     ]
 }
 
-# PDF
-PROXY_FOR_DEVELOPERS_KEY = env('PROXY_FOR_DEVELOPERS_KEY')
-
 # CELERY
 CELERY_BROKER_URL = env('CELERY_BROKER_URL')
 CELERY_TIMEZONE = 'Europe/Moscow'
 CELERY_BEAT_SCHEDULE = {
-    'backup_schedule': {
-        'task': 'make_backup',
-        'schedule': crontab(hour='22', minute='00')
-    },
-    'start_auction_dates_parser': {
-        'task': 'start_auction_dates_parser',
-        'schedule': crontab(hour='3', minute='18')
+    'run_limits_info_update': {
+        'task': 'run_limits_info_update',
+        'schedule': crontab(hour='0', minute='30')
     },
 }
 CELERY_TASK_ROUTES = {
-    'make_backup': {'queue': 'schedule'},
-    'send_backup': {'queue': 'schedule'},
-
-    'parse_auction_dates': {'queue': 'parse'},
-    'start_auction_dates_parser': {'queue': 'parse'},
-
-    'send_message_to_telegram': {'queue': 'telegram'},
+    'run_limits_info_update': {'queue': 'periodic_tasks'},
+    'update_limit_info': {'queue': 'periodic_tasks'},
 }
