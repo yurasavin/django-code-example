@@ -1,4 +1,4 @@
-Django==3.0.6
+Django==3.1.13
 celery==4.4.2
 psycopg2-binary==2.8.5
 django-extensions==2.2.9
